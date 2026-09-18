@@ -7,11 +7,11 @@ function crearProductosModel(db) {
     `SELECT * FROM productos WHERE stock_actual <= stock_minimo AND (@categoria IS NULL OR categoria = @categoria) ORDER BY nombre`
   );
   const stmtInsert = db.prepare(
-    `INSERT INTO productos (nombre, categoria, stock_actual, stock_minimo, unidad)
-     VALUES (@nombre, @categoria, @stock_actual, @stock_minimo, @unidad)`
+    `INSERT INTO productos (nombre, categoria, stock_actual, stock_minimo, unidad, icono)
+     VALUES (@nombre, @categoria, @stock_actual, @stock_minimo, @unidad, @icono)`
   );
   const stmtUpdate = db.prepare(
-    `UPDATE productos SET nombre = @nombre, stock_minimo = @stock_minimo, unidad = @unidad, updated_at = datetime('now','localtime')
+    `UPDATE productos SET nombre = @nombre, stock_minimo = @stock_minimo, unidad = @unidad, icono = @icono, updated_at = datetime('now','localtime')
      WHERE id = @id`
   );
   const stmtDelete = db.prepare(`DELETE FROM productos WHERE id = ?`);
@@ -30,19 +30,20 @@ function crearProductosModel(db) {
       return stmtGetBajoStock.all({ categoria });
     },
 
-    create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad' }) {
-      const info = stmtInsert.run({ nombre, categoria, stock_actual, stock_minimo, unidad });
+    create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad', icono = '📦' }) {
+      const info = stmtInsert.run({ nombre, categoria, stock_actual, stock_minimo, unidad, icono });
       return model.getById(info.lastInsertRowid);
     },
 
-    update(id, { nombre, stock_minimo, unidad } = {}) {
+    update(id, { nombre, stock_minimo, unidad, icono } = {}) {
       const actual = model.getById(id);
       if (!actual) return null;
       stmtUpdate.run({
         id,
         nombre: nombre ?? actual.nombre,
         stock_minimo: stock_minimo ?? actual.stock_minimo,
-        unidad: unidad ?? actual.unidad
+        unidad: unidad ?? actual.unidad,
+        icono: icono ?? actual.icono
       });
       return model.getById(id);
     },

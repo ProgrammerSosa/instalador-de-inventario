@@ -21,6 +21,7 @@ Aplicación de escritorio 100% local para gestionar el inventario de una institu
 ### Fuera de alcance v1 — backlog fase 2 (se diseña después, por separado)
 - **Bot de WhatsApp** para notificar stock bajo a un número fijo con mensajes predeterminados. Diferido porque: requiere una librería no oficial (viola los términos de servicio de WhatsApp, riesgo real de baneo del número), necesita internet activo, y agrega una dependencia pesada (Chromium embebido, ~300MB).
 - **Exportación de reportes a PDF** (ej. listado de stock bajo). El usuario confirmó que lo quiere eventualmente, pero se diseña junto con la fase 2 para no atrasar el inventario funcionando.
+- **Estadísticas** (consumo por semana/mes/año, producto más consumido, por categoría). Se agrupa con la fase 2 porque es una vista adicional sobre datos que ya van a existir — no bloquea tener el inventario funcionando, y comparte la naturaleza de "capa de valor agregado" con las alertas y el respaldo.
 
 ## Arquitectura
 
@@ -97,8 +98,9 @@ Este patrón (una carpeta por dominio dentro de `src/`) escala bien para la fase
 | stock_actual | INTEGER NOT NULL DEFAULT 0 | |
 | stock_minimo | INTEGER NOT NULL DEFAULT 0 | |
 | unidad | TEXT DEFAULT 'unidad' | ej. unidad, caja, litro |
-| created_at | DATETIME DEFAULT CURRENT_TIMESTAMP | |
-| updated_at | DATETIME DEFAULT CURRENT_TIMESTAMP | |
+| icono | TEXT DEFAULT '📦' | emoji elegido al cargar el producto, para variedad visual en el grid |
+| created_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
+| updated_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 
 **`movimientos`**
 
@@ -108,7 +110,7 @@ Este patrón (una carpeta por dominio dentro de `src/`) escala bien para la fase
 | producto_id | INTEGER NOT NULL | FK → productos(id) |
 | tipo | TEXT NOT NULL | CHECK IN ('entrada','salida') |
 | cantidad | INTEGER NOT NULL | > 0 |
-| fecha | DATETIME DEFAULT CURRENT_TIMESTAMP | |
+| fecha | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 | nota | TEXT | opcional, ej. "compra proveedor X" |
 
 **`app_config`** (clave/valor simple, para ajustes chicos como la fecha del último respaldo)
@@ -133,15 +135,35 @@ Este patrón (una carpeta por dominio dentro de `src/`) escala bien para la fase
 
 ## Frontend
 
-- **Landing** (`/`): tarjetas "Librería" y "Limpieza", con indicador si hay productos bajo mínimo en cada una.
-- **ProductList** (`/libreria`, `/limpieza`): tabla de productos de esa categoría, filas bajo mínimo resaltadas, acciones rápidas "+ Entrada" / "− Salida" / "Editar".
-- **ProductForm**: modal de alta de producto.
-- **StockMovementForm**: modal de registro de entrada/salida.
-- **Historial** (`/historial`): tabla de movimientos con filtros.
+### Flujo de pantallas
+
+1. **Splash** (`/`): logo de la app centrado, nombre, botón "Ingresar". Pantalla de bienvenida simple, sin datos ni llamadas a la API — solo transición.
+2. **Selección de categoría** (`/categorias`): 2 tarjetas grandes, "Librería" y "Limpieza", cada una con un indicador si hay productos bajo mínimo en esa categoría (llamada liviana a `GET /api/productos/bajo-stock?categoria=`).
+3. **Vista de categoría** (`/libreria`, `/limpieza`): el diseño de grilla de tarjetas con ícono por producto (según los mockups del usuario) en vez de una tabla plana — cada tarjeta muestra nombre + ícono, resaltada en rojo si está bajo mínimo o agotada. Casilleros vacíos con "+" para agregar un producto nuevo directo desde el grid. Cada categoría conserva su propia ambientación visual (fondo/temática ilustrada), distinta entre Librería y Limpieza. Barra superior con navegación a Dashboard y Settings (ver más abajo) y la campanita de notificaciones.
+4. **Historial** (`/libreria/historial`, `/limpieza/historial`): listado de movimientos con filtros por fecha, dentro de la misma categoría.
+
+### Modo Edición vs. Modo Normal
+
+Dentro de la vista de categoría hay un interruptor de modo, visible en todo momento (ej. franja de color en la parte superior indicando en qué modo se está):
+
+- **Modo Normal (default):** el uso del día a día. Tocar una tarjeta de producto abre el registro de una **salida** — descuenta stock, y pide una **nota obligatoria** (para qué/a quién se entregó), que queda en el Historial.
+- **Modo Edición:** hay que activarlo explícitamente. Habilita dar de alta productos nuevos (casilleros "+"), registrar **entradas** de stock, y editar nombre/mínimo/unidad de un producto existente.
+- Por seguridad ante errores: si se cambia de categoría o pasa un tiempo sin actividad, vuelve solo a Modo Normal — así nadie deja la app "en edición" sin querer.
+
+### Paleta y estilo
+
+- Colores principales de la interfaz (barras, botones, estructura): **blanco** (base), **azul** (acciones primarias, Modo Normal), **rojo** (alertas, stock bajo/agotado, y como acento del Modo Edición activo para que se note que se puede modificar algo).
+- Cada categoría mantiene su propia temática ilustrada (fondos, íconos) dentro de esa paleta base — no se pierde la identidad visual de cada inventario.
+- React + Tailwind + iconos temáticos por producto/categoría.
+
+### Componentes
+
+- **Splash**, **CategoriaSelector**, **ProductGrid** (grilla con tarjetas + modo), **ProductForm** (modal de alta/edición, solo Modo Edición), **StockMovementForm** (modal de entrada — Edición — o salida con nota obligatoria — Normal), **Historial**, **ModeToggle**.
 - **NotificationBell**: ícono en la barra superior con contador de alertas activas; al hacer clic despliega el panel con el detalle de cada una.
 - **AlertBot**: mascota chica con globo de texto que muestra y lee en voz alta la alerta más urgente.
-- **BackupExportButtons**: botones "Exportar Respaldo" y "Exportar a Excel" en la barra superior.
-- Estilo: React + Tailwind, color de acento distinto por categoría, rojo/ámbar para alertas de stock bajo.
+- **BackupExportButtons**: dentro de Settings — botones "Exportar Respaldo" y "Exportar a Excel".
+- **Dashboard** (fase 2, junto con Estadísticas): vista de resumen dentro de cada categoría — consumo por semana/mes/año y producto más consumido, calculado en el frontend a partir de `GET /api/movimientos` con filtros de fecha (ya soportado), sin necesidad de un endpoint nuevo.
+- **Settings**: acceso a Exportar Respaldo / Exportar a Excel (y, a futuro, configuración del bot de WhatsApp).
 
 ## Alertas y notificaciones
 
@@ -163,7 +185,7 @@ Mecanismo único para todo tipo de alerta (stock y respaldo): la campanita muest
 
 ## Manejo de errores
 
-Middleware central de errores en Express → respuestas `{ error: "mensaje" }` con status HTTP correcto (400 validación, 404 no encontrado, 500 inesperado). El frontend muestra esos mensajes inline y deshabilita botones mientras hay una request en curso.
+Middleware central de errores en Express → respuestas `{ ok: false, error: "mensaje" }` (éxito: `{ ok: true, data }`) con status HTTP correcto (400 validación, 404 no encontrado, 500 inesperado). Rutas no encontradas también devuelven ese mismo formato (404 con `error: "Ruta no encontrada"`), nunca el HTML por default de Express. El frontend muestra esos mensajes inline y deshabilita botones mientras hay una request en curso.
 
 ## Testing
 

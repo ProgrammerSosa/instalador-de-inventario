@@ -19,6 +19,7 @@ function crearProductosController(productosModel) {
         const nombre = typeof req.body.nombre === 'string' ? req.body.nombre.trim() : req.body.nombre;
         const stock_actual = Number(req.body.stock_actual ?? 0);
         const stock_minimo = Number(req.body.stock_minimo ?? 0);
+        const icono = typeof req.body.icono === 'string' && req.body.icono.trim() ? req.body.icono.trim() : undefined;
 
         if (!nombre || typeof nombre !== 'string') {
           const err = new Error('El nombre es obligatorio');
@@ -41,7 +42,7 @@ function crearProductosController(productosModel) {
           throw err;
         }
 
-        const creado = productosModel.create({ nombre, categoria, stock_actual, stock_minimo, unidad });
+        const creado = productosModel.create({ nombre, categoria, stock_actual, stock_minimo, unidad, icono });
         ok(res, creado, 201);
       } catch (err) {
         next(err);
@@ -75,6 +76,10 @@ function crearProductosController(productosModel) {
 
         if (req.body.unidad !== undefined) {
           datos.unidad = req.body.unidad;
+        }
+
+        if (req.body.icono !== undefined) {
+          datos.icono = req.body.icono;
         }
 
         const actualizado = productosModel.update(id, datos);

@@ -61,6 +61,16 @@ test('remove rechaza eliminar un producto con movimientos', () => {
   assert.throws(() => model.remove(creado.id), /movimientos registrados/);
 });
 
+test('create usa icono por defecto si no se especifica, y update lo puede cambiar', () => {
+  const { model } = setup();
+  const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  assert.equal(creado.icono, '📦');
+  const conIconoCustom = model.create({ nombre: 'Cuaderno', categoria: 'Librería', icono: '📓' });
+  assert.equal(conIconoCustom.icono, '📓');
+  const actualizado = model.update(creado.id, { icono: '📝' });
+  assert.equal(actualizado.icono, '📝');
+});
+
 test('getBajoStock filtra por categoria', () => {
   const { model } = setup();
   model.create({ nombre: 'Bajo Libreria', categoria: 'Librería', stock_actual: 1, stock_minimo: 5 });
