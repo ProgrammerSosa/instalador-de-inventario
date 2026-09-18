@@ -1,0 +1,65 @@
+function crearProductosModel(db) {
+  const stmtGetAll = db.prepare(
+    `SELECT * FROM productos WHERE (@categoria IS NULL OR categoria = @categoria) ORDER BY nombre`
+  );
+  const stmtGetById = db.prepare(`SELECT * FROM productos WHERE id = ?`);
+  const stmtGetBajoStock = db.prepare(
+    `SELECT * FROM productos WHERE stock_actual <= stock_minimo AND (@categoria IS NULL OR categoria = @categoria) ORDER BY nombre`
+  );
+  const stmtInsert = db.prepare(
+    `INSERT INTO productos (nombre, categoria, stock_actual, stock_minimo, unidad)
+     VALUES (@nombre, @categoria, @stock_actual, @stock_minimo, @unidad)`
+  );
+  const stmtUpdate = db.prepare(
+    `UPDATE productos SET nombre = @nombre, stock_minimo = @stock_minimo, unidad = @unidad, updated_at = CURRENT_TIMESTAMP
+     WHERE id = @id`
+  );
+  const stmtDelete = db.prepare(`DELETE FROM productos WHERE id = ?`);
+  const stmtContarMovimientos = db.prepare(`SELECT COUNT(*) AS total FROM movimientos WHERE producto_id = ?`);
+
+  const model = {
+    getAll(categoria = null) {
+      return stmtGetAll.all({ categoria });
+    },
+
+    getById(id) {
+      return stmtGetById.get(id) || null;
+    },
+
+    getBajoStock(categoria = null) {
+      return stmtGetBajoStock.all({ categoria });
+    },
+
+    create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad' }) {
+      const info = stmtInsert.run({ nombre, categoria, stock_actual, stock_minimo, unidad });
+      return model.getById(info.lastInsertRowid);
+    },
+
+    update(id, { nombre, stock_minimo, unidad } = {}) {
+      const actual = model.getById(id);
+      if (!actual) return null;
+      stmtUpdate.run({
+        id,
+        nombre: nombre ?? actual.nombre,
+        stock_minimo: stock_minimo ?? actual.stock_minimo,
+        unidad: unidad ?? actual.unidad
+      });
+      return model.getById(id);
+    },
+
+    remove(id) {
+      const { total } = stmtContarMovimientos.get(id);
+      if (total > 0) {
+        const err = new Error('No se puede eliminar un producto con movimientos registrados');
+        err.status = 400;
+        throw err;
+      }
+      const info = stmtDelete.run(id);
+      return info.changes > 0;
+    }
+  };
+
+  return model;
+}
+
+module.exports = { crearProductosModel };
