@@ -11,7 +11,7 @@ function crearTablas(db) {
       stock_actual INTEGER NOT NULL DEFAULT 0,
       stock_minimo INTEGER NOT NULL DEFAULT 0,
       unidad TEXT DEFAULT 'unidad',
-      icono TEXT DEFAULT '📦',
+      icono TEXT DEFAULT 'Package',
       created_at DATETIME DEFAULT (datetime('now','localtime')),
       updated_at DATETIME DEFAULT (datetime('now','localtime'))
     );

@@ -98,7 +98,7 @@ Este patrón (una carpeta por dominio dentro de `src/`) escala bien para la fase
 | stock_actual | INTEGER NOT NULL DEFAULT 0 | |
 | stock_minimo | INTEGER NOT NULL DEFAULT 0 | |
 | unidad | TEXT DEFAULT 'unidad' | ej. unidad, caja, litro |
-| icono | TEXT DEFAULT '📦' | emoji elegido al cargar el producto, para variedad visual en el grid |
+| icono | TEXT DEFAULT 'Package' | nombre de ícono de `lucide-react`, elegido al cargar el producto (no emoji — se ve más profesional) |
 | created_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 | updated_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 

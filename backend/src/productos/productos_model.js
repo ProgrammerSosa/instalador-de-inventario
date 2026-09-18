@@ -30,7 +30,7 @@ function crearProductosModel(db) {
       return stmtGetBajoStock.all({ categoria });
     },
 
-    create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad', icono = '📦' }) {
+    create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad', icono = 'Package' }) {
       const info = stmtInsert.run({ nombre, categoria, stock_actual, stock_minimo, unidad, icono });
       return model.getById(info.lastInsertRowid);
     },
