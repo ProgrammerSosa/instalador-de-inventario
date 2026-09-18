@@ -64,3 +64,32 @@ test('listar filtra por producto_id', () => {
   assert.equal(soloP1.length, 1);
   assert.equal(soloP1[0].producto_id, p1.id);
 });
+
+test('listar filtra por categoria', () => {
+  const { productos, movimientos } = setup();
+  const p1 = productos.create({ nombre: 'Papel A4', categoria: 'Librería', stock_actual: 10 });
+  const p2 = productos.create({ nombre: 'Detergente', categoria: 'Limpieza', stock_actual: 10 });
+  movimientos.registrar({ producto_id: p1.id, tipo: 'entrada', cantidad: 1 });
+  movimientos.registrar({ producto_id: p2.id, tipo: 'entrada', cantidad: 1 });
+  const soloLimpieza = movimientos.listar({ categoria: 'Limpieza' });
+  assert.equal(soloLimpieza.length, 1);
+  assert.equal(soloLimpieza[0].producto_categoria, 'Limpieza');
+});
+
+test('listar con hasta=hoy (solo fecha, sin hora) incluye movimientos de hoy', () => {
+  const { productos, movimientos } = setup();
+  const p = productos.create({ nombre: 'Papel A4', categoria: 'Librería', stock_actual: 10 });
+  movimientos.registrar({ producto_id: p.id, tipo: 'entrada', cantidad: 1 });
+  const hoy = new Date().toISOString().slice(0, 10);
+  const incluidos = movimientos.listar({ hasta: hoy });
+  assert.equal(incluidos.length, 1);
+});
+
+test('listar con desde=mañana excluye movimientos de hoy', () => {
+  const { productos, movimientos } = setup();
+  const p = productos.create({ nombre: 'Papel A4', categoria: 'Librería', stock_actual: 10 });
+  movimientos.registrar({ producto_id: p.id, tipo: 'entrada', cantidad: 1 });
+  const manana = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const excluidos = movimientos.listar({ desde: manana });
+  assert.equal(excluidos.length, 0);
+});

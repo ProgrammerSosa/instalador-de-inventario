@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { errorHandler } = require('./middlewares/errorHandler');
+const { ok } = require('./utils/httpResponses');
 const { crearProductosModel } = require('./src/productos/productos_model');
 const { crearProductosController } = require('./src/productos/productos_controller');
 const { crearProductosRouter } = require('./src/productos/productos_routes');
@@ -14,7 +15,7 @@ function crearApp(db) {
   app.use(express.json());
 
   app.get('/health', (req, res) => {
-    res.json({ ok: true, data: { status: 'up' } });
+    ok(res, { status: 'up' });
   });
 
   const productosModel = crearProductosModel(db);
@@ -25,6 +26,12 @@ function crearApp(db) {
   const movimientosController = crearMovimientosController(movimientosModel);
   app.use('/api/productos/:id/movimiento', crearMovimientoRegistroRouter(movimientosController));
   app.use('/api/movimientos', crearMovimientosRouter(movimientosController));
+
+  app.use((req, res, next) => {
+    const err = new Error('Ruta no encontrada');
+    err.status = 404;
+    next(err);
+  });
 
   app.use(errorHandler);
 

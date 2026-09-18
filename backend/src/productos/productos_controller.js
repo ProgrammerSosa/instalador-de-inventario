@@ -4,22 +4,23 @@ const { CATEGORIAS } = require('../../utils/constants');
 function crearProductosController(productosModel) {
   return {
     listar(req, res) {
-      const { categoria } = req.query;
-      ok(res, productosModel.getAll(categoria || null));
+      const categoria = typeof req.query.categoria === 'string' ? req.query.categoria : null;
+      ok(res, productosModel.getAll(categoria));
     },
 
     bajoStock(req, res) {
-      const { categoria } = req.query;
-      ok(res, productosModel.getBajoStock(categoria || null));
+      const categoria = typeof req.query.categoria === 'string' ? req.query.categoria : null;
+      ok(res, productosModel.getBajoStock(categoria));
     },
 
     crear(req, res, next) {
       try {
-        const { nombre, categoria, unidad } = req.body;
+        const { categoria, unidad } = req.body;
+        const nombre = typeof req.body.nombre === 'string' ? req.body.nombre.trim() : req.body.nombre;
         const stock_actual = Number(req.body.stock_actual ?? 0);
         const stock_minimo = Number(req.body.stock_minimo ?? 0);
 
-        if (!nombre || !nombre.trim()) {
+        if (!nombre || typeof nombre !== 'string') {
           const err = new Error('El nombre es obligatorio');
           err.status = 400;
           throw err;
@@ -50,6 +51,18 @@ function crearProductosController(productosModel) {
     actualizar(req, res, next) {
       try {
         const { id } = req.params;
+        const datos = {};
+
+        if (req.body.nombre !== undefined) {
+          const nombre = typeof req.body.nombre === 'string' ? req.body.nombre.trim() : '';
+          if (!nombre) {
+            const err = new Error('El nombre no puede estar vacío');
+            err.status = 400;
+            throw err;
+          }
+          datos.nombre = nombre;
+        }
+
         if (req.body.stock_minimo !== undefined) {
           const stockMinimoNum = Number(req.body.stock_minimo);
           if (!Number.isInteger(stockMinimoNum) || stockMinimoNum < 0) {
@@ -57,9 +70,14 @@ function crearProductosController(productosModel) {
             err.status = 400;
             throw err;
           }
-          req.body.stock_minimo = stockMinimoNum;
+          datos.stock_minimo = stockMinimoNum;
         }
-        const actualizado = productosModel.update(id, req.body);
+
+        if (req.body.unidad !== undefined) {
+          datos.unidad = req.body.unidad;
+        }
+
+        const actualizado = productosModel.update(id, datos);
         if (!actualizado) {
           const err = new Error('Producto no encontrado');
           err.status = 404;
@@ -74,7 +92,12 @@ function crearProductosController(productosModel) {
     eliminar(req, res, next) {
       try {
         const { id } = req.params;
-        productosModel.remove(id);
+        const eliminado = productosModel.remove(id);
+        if (!eliminado) {
+          const err = new Error('Producto no encontrado');
+          err.status = 404;
+          throw err;
+        }
         ok(res, { id: Number(id) });
       } catch (err) {
         next(err);

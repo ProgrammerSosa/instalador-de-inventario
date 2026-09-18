@@ -11,7 +11,7 @@ function crearProductosModel(db) {
      VALUES (@nombre, @categoria, @stock_actual, @stock_minimo, @unidad)`
   );
   const stmtUpdate = db.prepare(
-    `UPDATE productos SET nombre = @nombre, stock_minimo = @stock_minimo, unidad = @unidad, updated_at = CURRENT_TIMESTAMP
+    `UPDATE productos SET nombre = @nombre, stock_minimo = @stock_minimo, unidad = @unidad, updated_at = datetime('now','localtime')
      WHERE id = @id`
   );
   const stmtDelete = db.prepare(`DELETE FROM productos WHERE id = ?`);

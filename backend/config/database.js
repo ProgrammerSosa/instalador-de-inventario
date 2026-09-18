@@ -11,8 +11,8 @@ function crearTablas(db) {
       stock_actual INTEGER NOT NULL DEFAULT 0,
       stock_minimo INTEGER NOT NULL DEFAULT 0,
       unidad TEXT DEFAULT 'unidad',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT (datetime('now','localtime')),
+      updated_at DATETIME DEFAULT (datetime('now','localtime'))
     );
 
     CREATE TABLE IF NOT EXISTS movimientos (
@@ -20,7 +20,7 @@ function crearTablas(db) {
       producto_id INTEGER NOT NULL REFERENCES productos(id),
       tipo TEXT NOT NULL CHECK(tipo IN ('entrada','salida')),
       cantidad INTEGER NOT NULL CHECK(cantidad > 0),
-      fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+      fecha DATETIME DEFAULT (datetime('now','localtime')),
       nota TEXT
     );
   `);

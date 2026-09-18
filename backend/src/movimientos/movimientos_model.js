@@ -4,7 +4,7 @@ function crearMovimientosModel(db) {
     `INSERT INTO movimientos (producto_id, tipo, cantidad, nota) VALUES (@producto_id, @tipo, @cantidad, @nota)`
   );
   const stmtSumarStock = db.prepare(
-    `UPDATE productos SET stock_actual = stock_actual + @delta, updated_at = CURRENT_TIMESTAMP WHERE id = @id`
+    `UPDATE productos SET stock_actual = stock_actual + @delta, updated_at = datetime('now','localtime') WHERE id = @id`
   );
   const stmtGetMovimientoById = db.prepare(`SELECT * FROM movimientos WHERE id = ?`);
 
@@ -32,8 +32,8 @@ function crearMovimientosModel(db) {
     const params = {};
     if (producto_id) { condiciones.push('m.producto_id = @producto_id'); params.producto_id = producto_id; }
     if (categoria) { condiciones.push('p.categoria = @categoria'); params.categoria = categoria; }
-    if (desde) { condiciones.push('m.fecha >= @desde'); params.desde = desde; }
-    if (hasta) { condiciones.push('m.fecha <= @hasta'); params.hasta = hasta; }
+    if (desde) { condiciones.push("date(m.fecha) >= date(@desde)"); params.desde = desde; }
+    if (hasta) { condiciones.push("date(m.fecha) <= date(@hasta)"); params.hasta = hasta; }
 
     const sql = `
       SELECT m.*, p.nombre AS producto_nombre, p.categoria AS producto_categoria

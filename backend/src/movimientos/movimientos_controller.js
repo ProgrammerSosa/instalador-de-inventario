@@ -4,7 +4,10 @@ const { TIPOS_MOVIMIENTO } = require('../../utils/constants');
 function crearMovimientosController(movimientosModel) {
   return {
     listar(req, res) {
-      const { producto_id, categoria, desde, hasta } = req.query;
+      const producto_id = typeof req.query.producto_id === 'string' ? req.query.producto_id : null;
+      const categoria = typeof req.query.categoria === 'string' ? req.query.categoria : null;
+      const desde = typeof req.query.desde === 'string' ? req.query.desde : null;
+      const hasta = typeof req.query.hasta === 'string' ? req.query.hasta : null;
       ok(res, movimientosModel.listar({ producto_id, categoria, desde, hasta }));
     },
 

@@ -60,3 +60,12 @@ test('remove rechaza eliminar un producto con movimientos', () => {
   db.prepare(`INSERT INTO movimientos (producto_id, tipo, cantidad) VALUES (?, 'entrada', 1)`).run(creado.id);
   assert.throws(() => model.remove(creado.id), /movimientos registrados/);
 });
+
+test('getBajoStock filtra por categoria', () => {
+  const { model } = setup();
+  model.create({ nombre: 'Bajo Libreria', categoria: 'Librería', stock_actual: 1, stock_minimo: 5 });
+  model.create({ nombre: 'Bajo Limpieza', categoria: 'Limpieza', stock_actual: 1, stock_minimo: 5 });
+  const soloLimpieza = model.getBajoStock('Limpieza');
+  assert.equal(soloLimpieza.length, 1);
+  assert.equal(soloLimpieza[0].nombre, 'Bajo Limpieza');
+});
