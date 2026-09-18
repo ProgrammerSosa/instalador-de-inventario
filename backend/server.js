@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const { errorHandler } = require('./middlewares/errorHandler');
+const { crearProductosModel } = require('./src/productos/productos_model');
+const { crearProductosController } = require('./src/productos/productos_controller');
+const { crearProductosRouter } = require('./src/productos/productos_routes');
 
 function crearApp(db) {
   const app = express();
@@ -11,9 +14,9 @@ function crearApp(db) {
     res.json({ ok: true, data: { status: 'up' } });
   });
 
-  // Las tareas siguientes montan acá sus routers (app.use('/api/...', ...))
-  // SIEMPRE antes de errorHandler — Express solo captura errores de rutas
-  // registradas ANTES del middleware de 4 argumentos.
+  const productosModel = crearProductosModel(db);
+  const productosController = crearProductosController(productosModel);
+  app.use('/api/productos', crearProductosRouter(productosController));
 
   app.use(errorHandler);
 
