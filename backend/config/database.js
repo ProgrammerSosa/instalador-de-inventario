@@ -1,0 +1,40 @@
+const path = require('path');
+const fs = require('fs');
+const Database = require('better-sqlite3');
+
+function crearTablas(db) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS productos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT NOT NULL,
+      categoria TEXT NOT NULL CHECK(categoria IN ('Librería','Limpieza')),
+      stock_actual INTEGER NOT NULL DEFAULT 0,
+      stock_minimo INTEGER NOT NULL DEFAULT 0,
+      unidad TEXT DEFAULT 'unidad',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS movimientos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      producto_id INTEGER NOT NULL REFERENCES productos(id),
+      tipo TEXT NOT NULL CHECK(tipo IN ('entrada','salida')),
+      cantidad INTEGER NOT NULL CHECK(cantidad > 0),
+      fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+      nota TEXT
+    );
+  `);
+}
+
+function crearConexion(dbPath) {
+  if (dbPath !== ':memory:') {
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  }
+  const db = new Database(dbPath);
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
+  crearTablas(db);
+  return db;
+}
+
+module.exports = { crearConexion, crearTablas };
