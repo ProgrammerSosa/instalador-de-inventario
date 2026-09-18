@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { registrarMovimiento } from '../api/client.js';
 
 export default function StockMovementForm({ producto, tipoFijo, onCerrar, onGuardado }) {
@@ -31,8 +32,9 @@ export default function StockMovementForm({ producto, tipoFijo, onCerrar, onGuar
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <form onSubmit={manejarSubmit} className="bg-white rounded-xl p-6 w-80 flex flex-col gap-3">
-        <h2 className="text-lg font-bold">
-          {tipo === 'entrada' ? '📥 Entrada de stock' : '📤 Salida de stock'} — {producto.nombre}
+        <h2 className="text-lg font-bold flex items-center gap-2">
+          {tipo === 'entrada' ? <ArrowDownToLine className="text-primario" size={20} /> : <ArrowUpFromLine className="text-alerta" size={20} />}
+          {tipo === 'entrada' ? 'Entrada de stock' : 'Salida de stock'} — {producto.nombre}
         </h2>
         <p className="text-sm text-gray-500">Stock actual: {producto.stock_actual} {producto.unidad}</p>
 
