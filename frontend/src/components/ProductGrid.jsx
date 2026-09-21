@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, BookOpen, SprayCan, History, Search, X, Archive } from 'lucide-react';
+import { Plus, BookOpen, SprayCan, History, Search, X, Archive, BarChart3 } from 'lucide-react';
 import { getProductos } from '../api/client.js';
 import { useModo } from './ModoContext.jsx';
 import ModeToggle from './ModeToggle.jsx';
@@ -55,19 +55,29 @@ export default function ProductGrid({ categoria }) {
           <tema.Icono size={20} />
           {categoria}
         </button>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 items-center">
+          <button
+            onClick={() => navigate(`${tema.ruta}/estadisticas`)}
+            title="Estadísticas"
+            className="p-2.5 rounded-lg text-gray-600 transition-colors hover:bg-black/5"
+          >
+            <BarChart3 size={18} />
+          </button>
           <button
             onClick={() => navigate(`${tema.ruta}/historial`)}
-            className="flex items-center gap-1.5 text-gray-600 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
+            title="Historial"
+            className="p-2.5 rounded-lg text-gray-600 transition-colors hover:bg-black/5"
           >
-            <History size={16} /> Historial
+            <History size={18} />
           </button>
           <button
             onClick={() => navigate(`${tema.ruta}/archivados`)}
-            className="flex items-center gap-1.5 text-gray-600 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
+            title="Archivados"
+            className="p-2.5 rounded-lg text-gray-600 transition-colors hover:bg-black/5"
           >
-            <Archive size={16} /> Archivados
+            <Archive size={18} />
           </button>
+          <div className="w-px h-6 bg-gray-200 mx-1" />
           <ModeToggle />
         </div>
       </div>
