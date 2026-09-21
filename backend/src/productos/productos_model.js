@@ -6,6 +6,9 @@ function crearProductosModel(db) {
   const stmtGetBajoStock = db.prepare(
     `SELECT * FROM productos WHERE activo = 1 AND stock_actual <= stock_minimo AND (@categoria IS NULL OR categoria = @categoria) ORDER BY nombre`
   );
+  const stmtGetArchivados = db.prepare(
+    `SELECT * FROM productos WHERE activo = 0 AND (@categoria IS NULL OR categoria = @categoria) ORDER BY nombre`
+  );
   const stmtInsert = db.prepare(
     `INSERT INTO productos (nombre, categoria, stock_actual, stock_minimo, unidad, icono, imagen)
      VALUES (@nombre, @categoria, @stock_actual, @stock_minimo, @unidad, @icono, @imagen)`
@@ -28,6 +31,10 @@ function crearProductosModel(db) {
 
     getBajoStock(categoria = null) {
       return stmtGetBajoStock.all({ categoria });
+    },
+
+    getArchivados(categoria = null) {
+      return stmtGetArchivados.all({ categoria });
     },
 
     create({ nombre, categoria, stock_actual = 0, stock_minimo = 0, unidad = 'unidad', icono = 'Package', imagen = null }) {

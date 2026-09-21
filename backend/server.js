@@ -8,6 +8,8 @@ const { crearProductosRouter } = require('./src/productos/productos_routes');
 const { crearMovimientosModel } = require('./src/movimientos/movimientos_model');
 const { crearMovimientosController } = require('./src/movimientos/movimientos_controller');
 const { crearMovimientoRegistroRouter, crearMovimientosRouter } = require('./src/movimientos/movimientos_routes');
+const { crearAlertasController } = require('./src/alertas/alertas_controller');
+const { crearAlertasRouter } = require('./src/alertas/alertas_routes');
 
 function crearApp(db) {
   const app = express();
@@ -26,6 +28,9 @@ function crearApp(db) {
   const movimientosController = crearMovimientosController(movimientosModel);
   app.use('/api/productos/:id/movimiento', crearMovimientoRegistroRouter(movimientosController));
   app.use('/api/movimientos', crearMovimientosRouter(movimientosController));
+
+  const alertasController = crearAlertasController(productosModel);
+  app.use('/api/alertas', crearAlertasRouter(alertasController));
 
   app.use((req, res, next) => {
     const err = new Error('Ruta no encontrada');

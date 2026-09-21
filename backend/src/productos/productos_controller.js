@@ -13,6 +13,11 @@ function crearProductosController(productosModel) {
       ok(res, productosModel.getBajoStock(categoria));
     },
 
+    archivados(req, res) {
+      const categoria = typeof req.query.categoria === 'string' ? req.query.categoria : null;
+      ok(res, productosModel.getArchivados(categoria));
+    },
+
     crear(req, res, next) {
       try {
         const { categoria, unidad } = req.body;

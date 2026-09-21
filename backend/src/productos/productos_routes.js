@@ -3,6 +3,7 @@ const express = require('express');
 function crearProductosRouter(controller) {
   const router = express.Router();
   router.get('/bajo-stock', controller.bajoStock);
+  router.get('/archivados', controller.archivados);
   router.get('/', controller.listar);
   router.post('/', controller.crear);
   router.put('/:id', controller.actualizar);

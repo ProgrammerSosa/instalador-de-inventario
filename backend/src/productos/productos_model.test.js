@@ -97,6 +97,26 @@ test('archivar un producto (activo=false) lo saca de getAll y getBajoStock, pero
   assert.notEqual(model.getById(creado.id), null);
 });
 
+test('getArchivados solo devuelve productos archivados, filtrando por categoria', () => {
+  const { model } = setup();
+  const p1 = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  model.create({ nombre: 'Detergente', categoria: 'Limpieza' });
+  model.update(p1.id, { activo: false });
+  assert.equal(model.getArchivados().length, 1);
+  assert.equal(model.getArchivados()[0].nombre, 'Papel A4');
+  assert.equal(model.getArchivados('Limpieza').length, 0);
+});
+
+test('desarchivar (activo=true de nuevo) lo devuelve a getAll', () => {
+  const { model } = setup();
+  const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  model.update(creado.id, { activo: false });
+  const restaurado = model.update(creado.id, { activo: true });
+  assert.equal(restaurado.activo, 1);
+  assert.equal(model.getAll().length, 1);
+  assert.equal(model.getArchivados().length, 0);
+});
+
 test('archivar un producto con movimientos funciona aunque remove() lo rechace', () => {
   const { db, model } = setup();
   const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
