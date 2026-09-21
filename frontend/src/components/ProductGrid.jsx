@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, BookOpen, SprayCan } from 'lucide-react';
+import { Plus, BookOpen, SprayCan, History } from 'lucide-react';
 import { getProductos } from '../api/client.js';
 import { useModo } from './ModoContext.jsx';
 import ModeToggle from './ModeToggle.jsx';
@@ -9,8 +9,8 @@ import ProductForm from './ProductForm.jsx';
 import StockMovementForm from './StockMovementForm.jsx';
 
 const TEMAS = {
-  'Librería': { fondo: 'bg-libreria-fondo', Icono: BookOpen, ruta: '/libreria' },
-  'Limpieza': { fondo: 'bg-limpieza-fondo', Icono: SprayCan, ruta: '/limpieza' }
+  'Librería': { gradiente: 'from-libreria-fondo to-amber-50', Icono: BookOpen, ruta: '/libreria' },
+  'Limpieza': { gradiente: 'from-limpieza-fondo to-emerald-50', Icono: SprayCan, ruta: '/limpieza' }
 };
 
 const CASILLEROS_MINIMOS = 12;
@@ -38,22 +38,28 @@ export default function ProductGrid({ categoria }) {
   const casillerosVacios = Math.max(CASILLEROS_MINIMOS - productos.length, 3);
 
   return (
-    <div className={`min-h-screen ${tema.fondo} p-6`}>
-      <div className="flex items-center justify-between mb-6">
-        <button onClick={() => navigate('/categorias')} className="flex items-center gap-2 text-gray-700 font-semibold">
+    <div className={`min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 animate-fade`}>
+      <div className="flex items-center justify-between mb-6 bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5">
+        <button
+          onClick={() => navigate('/categorias')}
+          className="flex items-center gap-2 text-gray-700 font-semibold rounded-lg px-2 py-1 transition-colors hover:bg-black/5"
+        >
           <tema.Icono size={20} />
           {categoria}
         </button>
-        <div className="flex gap-3 items-center">
-          <button onClick={() => navigate(`${tema.ruta}/historial`)} className="text-gray-700 underline">
-            Historial
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => navigate(`${tema.ruta}/historial`)}
+            className="flex items-center gap-1.5 text-gray-600 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
+          >
+            <History size={16} /> Historial
           </button>
           <ModeToggle />
         </div>
       </div>
 
       {cargando ? (
-        <p>Cargando...</p>
+        <p className="text-gray-500">Cargando...</p>
       ) : (
         <div className="grid grid-cols-3 gap-4">
           {productos.map((producto) => (
@@ -71,7 +77,7 @@ export default function ProductGrid({ categoria }) {
               key={`vacio-${i}`}
               onClick={() => modo === 'edicion' && setMostrarAlta(true)}
               disabled={modo !== 'edicion'}
-              className="rounded-xl border-2 border-dashed border-gray-300 h-32 flex items-center justify-center text-gray-300 disabled:cursor-default enabled:hover:border-primario enabled:hover:text-primario"
+              className="rounded-xl border-2 border-dashed border-gray-300/80 bg-white/30 h-32 flex items-center justify-center text-gray-300 transition-all duration-150 disabled:cursor-default enabled:hover:border-primario enabled:hover:text-primario enabled:hover:bg-white/70 enabled:hover:scale-[1.02]"
             >
               <Plus size={28} />
             </button>
