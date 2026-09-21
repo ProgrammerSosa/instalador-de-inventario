@@ -12,6 +12,10 @@ const PERIODOS = [
 const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const MESES_A_MOSTRAR = 6;
 
+// Paleta categórica validada (orden fijo, apta para daltonismo) — skill de dataviz.
+// El color va SIEMPRE por posición/entidad, nunca por "quién ganó" — eso se indica aparte.
+export const PALETA_CATEGORICA = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
+
 function fechaHaceNDias(dias) {
   return new Date(Date.now() - dias * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
@@ -29,17 +33,17 @@ function ultimosMeses(cantidad) {
   return meses;
 }
 
-function armarGradienteDonut(datos, colorTop, colorResto) {
+// Cada porción tiene un color fijo por posición (mes 1, mes 2...), no por magnitud:
+// el mes "ganador" se señala aparte (centro + leyenda en negrita), no repintando la porción.
+export function armarGradienteDonut(datos, paleta) {
   const total = datos.reduce((s, d) => s + d.valor, 0);
-  if (total === 0) return `conic-gradient(#e5e7eb 0% 100%)`;
-  const maxValor = Math.max(...datos.map((d) => d.valor));
+  if (total === 0) return 'conic-gradient(#e5e7eb 0% 100%)';
   let acumulado = 0;
-  const partes = datos.map((d) => {
+  const partes = datos.map((d, i) => {
     const inicio = (acumulado / total) * 100;
     acumulado += d.valor;
     const fin = (acumulado / total) * 100;
-    const color = d.valor > 0 && d.valor === maxValor ? colorTop : colorResto;
-    return `${color} ${inicio}% ${fin}%`;
+    return `${paleta[i % paleta.length]} ${inicio}% ${fin}%`;
   });
   return `conic-gradient(${partes.join(', ')})`;
 }
@@ -79,7 +83,7 @@ export default function Dashboard({ categoria }) {
     () => datosPorMes.reduce((top, d) => (d.valor > top.valor ? d : top), datosPorMes[0] ?? { valor: 0, etiqueta: '—' }),
     [datosPorMes]
   );
-  const gradienteDonut = useMemo(() => armarGradienteDonut(datosPorMes, '#2563eb', '#dbeafe'), [datosPorMes]);
+  const gradienteDonut = useMemo(() => armarGradienteDonut(datosPorMes, PALETA_CATEGORICA), [datosPorMes]);
 
   const { totalSalidas, totalEntradas, ranking } = useMemo(() => {
     const salidas = movimientos.filter((m) => m.tipo === 'salida');
@@ -162,17 +166,21 @@ export default function Dashboard({ categoria }) {
                 <div className="w-36 h-36 rounded-full" style={{ background: gradienteDonut }} />
                 <div className="absolute inset-0 m-auto w-20 h-20 bg-white rounded-full flex flex-col items-center justify-center">
                   <span className="text-[10px] text-gray-400 uppercase">Más consumo</span>
-                  <span className="text-sm font-bold text-primario capitalize">{mesConMasConsumo.etiqueta}</span>
+                  <span className="text-sm font-bold text-gray-800 capitalize">{mesConMasConsumo.etiqueta}</span>
                 </div>
               </div>
               <div className="flex gap-3 flex-wrap justify-center">
-                {datosPorMes.map((d) => (
+                {datosPorMes.map((d, i) => (
                   <div
                     key={d.clave}
                     className={`text-center min-w-[2.5rem] ${
-                      d.clave === mesConMasConsumo.clave && d.valor > 0 ? 'text-primario font-bold' : 'text-gray-400'
+                      d.clave === mesConMasConsumo.clave && d.valor > 0 ? 'font-bold text-gray-800' : 'text-gray-400'
                     }`}
                   >
+                    <span
+                      className="inline-block w-2 h-2 rounded-full mb-1"
+                      style={{ backgroundColor: PALETA_CATEGORICA[i % PALETA_CATEGORICA.length] }}
+                    />
                     <p className="text-xs uppercase">{d.etiqueta}</p>
                     <p className="text-sm">{d.valor}</p>
                   </div>
@@ -190,20 +198,27 @@ export default function Dashboard({ categoria }) {
               <p className="text-sm text-gray-400">Sin salidas registradas en este período.</p>
             ) : (
               <div className="flex flex-col gap-3">
-                {ranking.map((r) => (
-                  <div key={r.nombre} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600 w-32 truncate shrink-0" title={r.nombre}>
-                      {r.nombre}
-                    </span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
-                      <div
-                        className="bg-primario h-full rounded-full transition-all duration-500"
-                        style={{ width: `${(r.cantidad / maxRanking) * 100}%` }}
+                {ranking.map((r, i) => {
+                  const color = PALETA_CATEGORICA[i % PALETA_CATEGORICA.length];
+                  return (
+                    <div key={r.nombre} className="flex items-center gap-3">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: color }}
                       />
+                      <span className="text-sm text-gray-600 w-28 truncate shrink-0" title={r.nombre}>
+                        {r.nombre}
+                      </span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${(r.cantidad / maxRanking) * 100}%`, backgroundColor: color }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700 w-8 text-right">{r.cantidad}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-700 w-8 text-right">{r.cantidad}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
