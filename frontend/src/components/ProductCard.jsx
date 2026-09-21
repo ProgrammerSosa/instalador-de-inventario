@@ -19,12 +19,20 @@ export default function ProductCard({ producto, modo, onEditar, onEntrada, onSal
         onClick={modo === 'edicion' ? onEditar : onSalida}
         className="flex flex-col items-center gap-1 flex-1 justify-center w-full rounded-lg"
       >
-        <IconoProducto
-          nombre={producto.icono}
-          size={32}
-          strokeWidth={1.7}
-          className={`transition-transform duration-150 group-hover:scale-110 ${agotado ? 'text-alerta' : bajoStock ? 'text-amber-600' : 'text-gray-700'}`}
-        />
+        {producto.imagen ? (
+          <img
+            src={producto.imagen}
+            alt=""
+            className="w-9 h-9 rounded-lg object-cover transition-transform duration-150 group-hover:scale-110"
+          />
+        ) : (
+          <IconoProducto
+            nombre={producto.icono}
+            size={32}
+            strokeWidth={1.7}
+            className={`transition-transform duration-150 group-hover:scale-110 ${agotado ? 'text-alerta' : bajoStock ? 'text-amber-600' : 'text-gray-700'}`}
+          />
+        )}
         <span className="text-sm font-semibold text-gray-800 text-center leading-tight">{producto.nombre}</span>
         <span className={`text-xs ${agotado ? 'text-alerta font-semibold' : 'text-gray-500'}`}>
           {producto.stock_actual} {producto.unidad}

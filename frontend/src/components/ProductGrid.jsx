@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, BookOpen, SprayCan, History } from 'lucide-react';
+import { Plus, BookOpen, SprayCan, History, Search, X } from 'lucide-react';
 import { getProductos } from '../api/client.js';
 import { useModo } from './ModoContext.jsx';
 import ModeToggle from './ModeToggle.jsx';
@@ -20,6 +20,7 @@ export default function ProductGrid({ categoria }) {
   const { modo, volverANormal } = useModo();
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
   const [productoParaEditar, setProductoParaEditar] = useState(null);
   const [mostrarAlta, setMostrarAlta] = useState(false);
   const [movimiento, setMovimiento] = useState(null);
@@ -31,15 +32,22 @@ export default function ProductGrid({ categoria }) {
 
   useEffect(() => {
     volverANormal();
+    setBusqueda('');
     recargar();
   }, [categoria, volverANormal, recargar]);
 
   const tema = TEMAS[categoria];
-  const casillerosVacios = Math.max(CASILLEROS_MINIMOS - productos.length, 3);
+  const hayBusqueda = busqueda.trim().length > 0;
+  const productosFiltrados = useMemo(() => {
+    if (!hayBusqueda) return productos;
+    const texto = busqueda.trim().toLowerCase();
+    return productos.filter((p) => p.nombre.toLowerCase().includes(texto));
+  }, [productos, busqueda, hayBusqueda]);
+  const casillerosVacios = hayBusqueda ? 0 : Math.max(CASILLEROS_MINIMOS - productos.length, 4);
 
   return (
     <div className={`min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 animate-fade`}>
-      <div className="flex items-center justify-between mb-6 bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5">
+      <div className="flex items-center justify-between mb-4 bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5">
         <button
           onClick={() => navigate('/categorias')}
           className="flex items-center gap-2 text-gray-700 font-semibold rounded-lg px-2 py-1 transition-colors hover:bg-black/5"
@@ -58,11 +66,32 @@ export default function ProductGrid({ categoria }) {
         </div>
       </div>
 
+      <div className="relative mb-6 max-w-sm">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar producto..."
+          className="w-full bg-white/80 backdrop-blur rounded-xl pl-9 pr-9 py-2.5 text-sm shadow-sm ring-1 ring-black/5 outline-none transition focus:ring-2 focus:ring-primario/30"
+        />
+        {hayBusqueda && (
+          <button
+            onClick={() => setBusqueda('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            title="Limpiar búsqueda"
+          >
+            <X size={15} />
+          </button>
+        )}
+      </div>
+
       {cargando ? (
         <p className="text-gray-500">Cargando...</p>
+      ) : hayBusqueda && productosFiltrados.length === 0 ? (
+        <p className="text-gray-400 text-center mt-10">Ningún producto coincide con "{busqueda}".</p>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
-          {productos.map((producto) => (
+        <div className="grid grid-cols-4 gap-4">
+          {productosFiltrados.map((producto) => (
             <ProductCard
               key={producto.id}
               producto={producto}
