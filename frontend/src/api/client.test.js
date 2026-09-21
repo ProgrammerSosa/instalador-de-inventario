@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { getProductos, crearProducto, registrarMovimiento } from './client.js';
+import { getProductos, crearProducto, registrarMovimiento, getAlertas, getProductosArchivados } from './client.js';
 
 function mockearFetch(cuerpo) {
   global.fetch = vi.fn().mockResolvedValue({ json: async () => cuerpo });
@@ -45,5 +45,18 @@ describe('api/client', () => {
       'http://localhost:4000/api/productos/5/movimiento',
       expect.objectContaining({ method: 'POST' })
     );
+  });
+
+  test('getAlertas pide /api/alertas sin parametros', async () => {
+    mockearFetch({ ok: true, data: [{ tipo: 'agotado', producto_id: 1 }] });
+    const resultado = await getAlertas();
+    expect(resultado).toEqual([{ tipo: 'agotado', producto_id: 1 }]);
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/api/alertas');
+  });
+
+  test('getProductosArchivados arma la URL con categoria', async () => {
+    mockearFetch({ ok: true, data: [] });
+    await getProductosArchivados('Limpieza');
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/api/productos/archivados?categoria=Limpieza');
   });
 });

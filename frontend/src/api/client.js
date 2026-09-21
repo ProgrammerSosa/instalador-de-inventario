@@ -20,6 +20,17 @@ export async function getBajoStock(categoria) {
   return manejarRespuesta(res);
 }
 
+export async function getProductosArchivados(categoria) {
+  const url = categoria ? `${API_BASE}/productos/archivados?categoria=${encodeURIComponent(categoria)}` : `${API_BASE}/productos/archivados`;
+  const res = await fetch(url);
+  return manejarRespuesta(res);
+}
+
+export async function getAlertas() {
+  const res = await fetch(`${API_BASE}/alertas`);
+  return manejarRespuesta(res);
+}
+
 export async function crearProducto(datos) {
   const res = await fetch(`${API_BASE}/productos`, {
     method: 'POST',

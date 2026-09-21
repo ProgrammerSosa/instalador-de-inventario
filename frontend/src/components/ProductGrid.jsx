@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, BookOpen, SprayCan, History, Search, X } from 'lucide-react';
+import { Plus, BookOpen, SprayCan, History, Search, X, Archive } from 'lucide-react';
 import { getProductos } from '../api/client.js';
 import { useModo } from './ModoContext.jsx';
 import ModeToggle from './ModeToggle.jsx';
@@ -61,6 +61,12 @@ export default function ProductGrid({ categoria }) {
             className="flex items-center gap-1.5 text-gray-600 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
           >
             <History size={16} /> Historial
+          </button>
+          <button
+            onClick={() => navigate(`${tema.ruta}/archivados`)}
+            className="flex items-center gap-1.5 text-gray-600 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
+          >
+            <Archive size={16} /> Archivados
           </button>
           <ModeToggle />
         </div>

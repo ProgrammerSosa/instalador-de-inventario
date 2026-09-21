@@ -3,6 +3,9 @@ import Splash from './components/Splash.jsx';
 import CategoriaSelector from './components/CategoriaSelector.jsx';
 import ProductGrid from './components/ProductGrid.jsx';
 import Historial from './components/Historial.jsx';
+import Archivados from './components/Archivados.jsx';
+import NotificationBell from './components/NotificationBell.jsx';
+import AlertBot from './components/AlertBot.jsx';
 import { ModoProvider } from './components/ModoContext.jsx';
 
 export default function App() {
@@ -15,7 +18,11 @@ export default function App() {
         <Route path="/limpieza" element={<ProductGrid categoria="Limpieza" />} />
         <Route path="/libreria/historial" element={<Historial categoria="Librería" />} />
         <Route path="/limpieza/historial" element={<Historial categoria="Limpieza" />} />
+        <Route path="/libreria/archivados" element={<Archivados categoria="Librería" />} />
+        <Route path="/limpieza/archivados" element={<Archivados categoria="Limpieza" />} />
       </Routes>
+      <NotificationBell />
+      <AlertBot />
     </ModoProvider>
   );
 }
