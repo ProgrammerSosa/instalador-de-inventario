@@ -43,10 +43,10 @@ export default function CategoriaSelector() {
       </div>
 
       <button
-        onClick={() => navigate('/reporte')}
+        onClick={() => navigate('/reportes')}
         className="flex items-center gap-2 text-gray-500 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5 hover:text-gray-700"
       >
-        <FileText size={16} /> Ver reporte de faltantes
+        <FileText size={16} /> Reportes
       </button>
     </div>
   );

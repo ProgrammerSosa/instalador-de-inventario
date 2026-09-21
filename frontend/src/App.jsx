@@ -5,7 +5,10 @@ import ProductGrid from './components/ProductGrid.jsx';
 import Historial from './components/Historial.jsx';
 import Archivados from './components/Archivados.jsx';
 import Dashboard from './components/Dashboard.jsx';
-import Reporte from './components/Reporte.jsx';
+import Reportes from './components/Reportes.jsx';
+import ReporteFaltantes from './components/ReporteFaltantes.jsx';
+import ReporteConsumo from './components/ReporteConsumo.jsx';
+import ReporteEstadisticas from './components/ReporteEstadisticas.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
 import AlertBot from './components/AlertBot.jsx';
 import { ModoProvider } from './components/ModoContext.jsx';
@@ -24,7 +27,10 @@ export default function App() {
         <Route path="/limpieza/archivados" element={<Archivados categoria="Limpieza" />} />
         <Route path="/libreria/estadisticas" element={<Dashboard categoria="Librería" />} />
         <Route path="/limpieza/estadisticas" element={<Dashboard categoria="Limpieza" />} />
-        <Route path="/reporte" element={<Reporte />} />
+        <Route path="/reportes" element={<Reportes />} />
+        <Route path="/reportes/faltantes" element={<ReporteFaltantes />} />
+        <Route path="/reportes/consumo" element={<ReporteConsumo />} />
+        <Route path="/reportes/estadisticas" element={<ReporteEstadisticas />} />
       </Routes>
       <NotificationBell />
       <AlertBot />
