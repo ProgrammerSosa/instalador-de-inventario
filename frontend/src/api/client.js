@@ -62,7 +62,9 @@ export async function registrarMovimiento(productoId, datos) {
   });
   const resultado = await manejarRespuesta(res);
   // avisa a la campanita/bot para que revisen alertas al instante, sin esperar el sondeo de 30s
-  window.dispatchEvent(new Event('inventario:cambio-stock'));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('inventario:cambio-stock'));
+  }
   return resultado;
 }
 

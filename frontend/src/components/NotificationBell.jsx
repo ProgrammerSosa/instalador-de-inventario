@@ -23,7 +23,7 @@ export default function NotificationBell() {
   }, [cargar]);
 
   return (
-    <div className="fixed top-4 right-4 z-40">
+    <div className="fixed top-4 right-4 z-40 print:hidden">
       <button
         onClick={() => setAbierto((v) => !v)}
         className="relative w-11 h-11 rounded-full bg-white shadow-lg ring-1 ring-black/5 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"

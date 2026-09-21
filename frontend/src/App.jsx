@@ -5,6 +5,7 @@ import ProductGrid from './components/ProductGrid.jsx';
 import Historial from './components/Historial.jsx';
 import Archivados from './components/Archivados.jsx';
 import Dashboard from './components/Dashboard.jsx';
+import Reporte from './components/Reporte.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
 import AlertBot from './components/AlertBot.jsx';
 import { ModoProvider } from './components/ModoContext.jsx';
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/limpieza/archivados" element={<Archivados categoria="Limpieza" />} />
         <Route path="/libreria/estadisticas" element={<Dashboard categoria="Librería" />} />
         <Route path="/limpieza/estadisticas" element={<Dashboard categoria="Limpieza" />} />
+        <Route path="/reporte" element={<Reporte />} />
       </Routes>
       <NotificationBell />
       <AlertBot />

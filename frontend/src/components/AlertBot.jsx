@@ -105,7 +105,7 @@ export default function AlertBot() {
   if (!alerta) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 flex items-end gap-2 max-w-xs animate-fade">
+    <div className="fixed bottom-4 right-4 z-40 flex items-end gap-2 max-w-xs animate-fade print:hidden">
       <div className="bg-white rounded-2xl rounded-br-sm shadow-xl ring-1 ring-black/5 p-3">
         <p className="text-sm text-gray-700">{alerta.mensaje}</p>
       </div>
