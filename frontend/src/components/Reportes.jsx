@@ -32,7 +32,7 @@ export default function Reportes() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 animate-fade">
+    <div className="min-h-screen bg-gray-50 p-6 pb-28 animate-fade">
       <button
         onClick={() => navigate('/categorias')}
         className="flex items-center gap-2 text-gray-600 font-medium mb-6 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-black/5"

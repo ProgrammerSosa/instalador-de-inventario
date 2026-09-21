@@ -47,7 +47,7 @@ export default function ProductGrid({ categoria }) {
   const casillerosVacios = hayBusqueda ? 0 : Math.max(CASILLEROS_MINIMOS - productos.length, 4);
 
   return (
-    <div className={`relative min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 animate-fade overflow-hidden`}>
+    <div className={`relative min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 pb-28 animate-fade overflow-hidden`}>
       <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: tema.patron, backgroundRepeat: 'repeat' }} />
       <div className="relative">
       <div className="flex items-center justify-between mb-4 bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5">

@@ -106,7 +106,7 @@ export default function Dashboard({ categoria }) {
   const maxRanking = ranking[0]?.cantidad ?? 1;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 animate-fade">
+    <div className="min-h-screen bg-gray-50 p-6 pb-28 animate-fade">
       <button
         onClick={() => navigate(categoria === 'Librería' ? '/libreria' : '/limpieza')}
         className="flex items-center gap-2 text-gray-600 font-medium mb-4 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-black/5"

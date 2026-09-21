@@ -6,7 +6,7 @@ export default function ReporteLayout({ titulo, icono: Icono, volverA = '/report
   const fechaHoy = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 animate-fade">
+    <div className="min-h-screen bg-gray-50 p-6 pb-28 animate-fade">
       <div className="flex items-center justify-between mb-6 print:hidden">
         <button
           onClick={() => navigate(volverA)}
