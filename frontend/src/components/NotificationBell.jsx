@@ -45,11 +45,19 @@ export default function NotificationBell() {
             <ul className="flex flex-col gap-1">
               {alertas.map((a) => (
                 <li
-                  key={`${a.producto_id}-${a.tipo}`}
-                  className={`text-sm rounded-lg px-3 py-2 ${a.tipo === 'agotado' ? 'bg-red-50 text-alerta' : 'bg-amber-50 text-amber-700'}`}
+                  key={`${a.producto_id ?? 'app'}-${a.tipo}`}
+                  className={`text-sm rounded-lg px-3 py-2 ${
+                    a.tipo === 'agotado' ? 'bg-red-50 text-alerta' : a.tipo === 'respaldo-pendiente' ? 'bg-blue-50 text-primario' : 'bg-amber-50 text-amber-700'
+                  }`}
                 >
-                  <span className="font-medium">{a.producto_nombre}</span> · {a.categoria} ·{' '}
-                  {a.tipo === 'agotado' ? 'agotado' : `quedan ${a.stock_actual} ${a.unidad}`}
+                  {a.tipo === 'respaldo-pendiente' ? (
+                    a.mensaje
+                  ) : (
+                    <>
+                      <span className="font-medium">{a.producto_nombre}</span> · {a.categoria} ·{' '}
+                      {a.tipo === 'agotado' ? 'agotado' : `quedan ${a.stock_actual} ${a.unidad}`}
+                    </>
+                  )}
                 </li>
               ))}
             </ul>

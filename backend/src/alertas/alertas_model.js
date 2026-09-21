@@ -15,4 +15,25 @@ function construirAlertas(productosBajoStock) {
   });
 }
 
-module.exports = { construirAlertas };
+// ultimoRespaldoFecha viene en formato 'YYYY-MM-DD HH:MM:SS' (hora local, igual
+// que el resto de las fechas de la base) o null si nunca se hizo un respaldo.
+function construirAlertaRespaldo(ultimoRespaldoFecha, diasLimite = 7, ahora = new Date()) {
+  if (!ultimoRespaldoFecha) {
+    return {
+      tipo: 'respaldo-pendiente',
+      mensaje: 'Todavía no hiciste ningún respaldo del inventario.'
+    };
+  }
+
+  const fecha = new Date(ultimoRespaldoFecha.replace(' ', 'T'));
+  const dias = Math.floor((ahora - fecha) / (1000 * 60 * 60 * 24));
+
+  if (dias < diasLimite) return null;
+
+  return {
+    tipo: 'respaldo-pendiente',
+    mensaje: `Hace ${dias} días que no hacés un respaldo del inventario.`
+  };
+}
+
+module.exports = { construirAlertas, construirAlertaRespaldo };

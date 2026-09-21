@@ -26,6 +26,11 @@ function crearTablas(db) {
       fecha DATETIME DEFAULT (datetime('now','localtime')),
       nota TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS app_config (
+      clave TEXT PRIMARY KEY,
+      valor TEXT
+    );
   `);
 }
 
