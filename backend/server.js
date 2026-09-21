@@ -12,7 +12,7 @@ const { crearMovimientoRegistroRouter, crearMovimientosRouter } = require('./src
 function crearApp(db) {
   const app = express();
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: '2mb' })); // 2mb: las fotos de producto van en base64 dentro del JSON
 
   app.get('/health', (req, res) => {
     ok(res, { status: 'up' });

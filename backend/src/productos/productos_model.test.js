@@ -79,3 +79,42 @@ test('getBajoStock filtra por categoria', () => {
   assert.equal(soloLimpieza.length, 1);
   assert.equal(soloLimpieza[0].nombre, 'Bajo Limpieza');
 });
+
+test('un producto nuevo esta activo por defecto y aparece en getAll', () => {
+  const { model } = setup();
+  const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  assert.equal(creado.activo, 1);
+  assert.equal(model.getAll().length, 1);
+});
+
+test('archivar un producto (activo=false) lo saca de getAll y getBajoStock, pero sigue en getById', () => {
+  const { model } = setup();
+  const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería', stock_actual: 1, stock_minimo: 5 });
+  const archivado = model.update(creado.id, { activo: false });
+  assert.equal(archivado.activo, 0);
+  assert.equal(model.getAll().length, 0);
+  assert.equal(model.getBajoStock().length, 0);
+  assert.notEqual(model.getById(creado.id), null);
+});
+
+test('archivar un producto con movimientos funciona aunque remove() lo rechace', () => {
+  const { db, model } = setup();
+  const creado = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  db.prepare(`INSERT INTO movimientos (producto_id, tipo, cantidad) VALUES (?, 'entrada', 1)`).run(creado.id);
+  assert.throws(() => model.remove(creado.id), /movimientos registrados/);
+  const archivado = model.update(creado.id, { activo: false });
+  assert.equal(archivado.activo, 0);
+  assert.equal(model.getAll().length, 0);
+});
+
+test('create acepta imagen, y update la puede cambiar o borrar', () => {
+  const { model } = setup();
+  const sinImagen = model.create({ nombre: 'Papel A4', categoria: 'Librería' });
+  assert.equal(sinImagen.imagen, null);
+  const conImagen = model.create({ nombre: 'Trapo', categoria: 'Limpieza', imagen: 'data:image/jpeg;base64,abc123' });
+  assert.equal(conImagen.imagen, 'data:image/jpeg;base64,abc123');
+  const actualizado = model.update(conImagen.id, { imagen: 'data:image/jpeg;base64,def456' });
+  assert.equal(actualizado.imagen, 'data:image/jpeg;base64,def456');
+  const sinImagenDeNuevo = model.update(conImagen.id, { imagen: null });
+  assert.equal(sinImagenDeNuevo.imagen, null);
+});

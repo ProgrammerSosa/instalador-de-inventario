@@ -99,6 +99,8 @@ Este patrón (una carpeta por dominio dentro de `src/`) escala bien para la fase
 | stock_minimo | INTEGER NOT NULL DEFAULT 0 | |
 | unidad | TEXT DEFAULT 'unidad' | ej. unidad, caja, litro |
 | icono | TEXT DEFAULT 'Package' | nombre de ícono de `lucide-react`, elegido al cargar el producto (no emoji — se ve más profesional) |
+| imagen | TEXT | opcional, foto del producto en base64 (data URL), comprimida a ~200px en el navegador antes de guardar. Si está presente, reemplaza al ícono en el grid |
+| activo | INTEGER NOT NULL DEFAULT 1 | 0 = archivado (no aparece en el inventario, pero conserva su historial). Alternativa a eliminar cuando el producto ya tiene movimientos registrados |
 | created_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 | updated_at | DATETIME DEFAULT (datetime('now','localtime')) | hora local, no UTC |
 
