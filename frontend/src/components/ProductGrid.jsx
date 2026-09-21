@@ -7,10 +7,11 @@ import ModeToggle from './ModeToggle.jsx';
 import ProductCard from './ProductCard.jsx';
 import ProductForm from './ProductForm.jsx';
 import StockMovementForm from './StockMovementForm.jsx';
+import { PATRON_LIBRERIA, PATRON_LIMPIEZA } from '../utils/patrones.js';
 
 const TEMAS = {
-  'Librería': { gradiente: 'from-libreria-fondo to-amber-50', Icono: BookOpen, ruta: '/libreria' },
-  'Limpieza': { gradiente: 'from-limpieza-fondo to-emerald-50', Icono: SprayCan, ruta: '/limpieza' }
+  'Librería': { gradiente: 'from-libreria-fondo to-amber-50', Icono: BookOpen, ruta: '/libreria', patron: PATRON_LIBRERIA },
+  'Limpieza': { gradiente: 'from-limpieza-fondo to-emerald-50', Icono: SprayCan, ruta: '/limpieza', patron: PATRON_LIMPIEZA }
 };
 
 const CASILLEROS_MINIMOS = 12;
@@ -46,7 +47,9 @@ export default function ProductGrid({ categoria }) {
   const casillerosVacios = hayBusqueda ? 0 : Math.max(CASILLEROS_MINIMOS - productos.length, 4);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 animate-fade`}>
+    <div className={`relative min-h-screen bg-gradient-to-b ${tema.gradiente} p-6 animate-fade overflow-hidden`}>
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: tema.patron, backgroundRepeat: 'repeat' }} />
+      <div className="relative">
       <div className="flex items-center justify-between mb-4 bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-sm ring-1 ring-black/5">
         <button
           onClick={() => navigate('/categorias')}
@@ -151,6 +154,7 @@ export default function ProductGrid({ categoria }) {
           onGuardado={() => { setMovimiento(null); recargar(); }}
         />
       )}
+      </div>
     </div>
   );
 }
