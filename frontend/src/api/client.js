@@ -60,7 +60,10 @@ export async function registrarMovimiento(productoId, datos) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(datos)
   });
-  return manejarRespuesta(res);
+  const resultado = await manejarRespuesta(res);
+  // avisa a la campanita/bot para que revisen alertas al instante, sin esperar el sondeo de 30s
+  window.dispatchEvent(new Event('inventario:cambio-stock'));
+  return resultado;
 }
 
 export async function getMovimientos(filtros = {}) {

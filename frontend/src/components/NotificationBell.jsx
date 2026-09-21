@@ -15,7 +15,11 @@ export default function NotificationBell() {
   useEffect(() => {
     cargar();
     const intervalo = setInterval(cargar, 30000);
-    return () => clearInterval(intervalo);
+    window.addEventListener('inventario:cambio-stock', cargar);
+    return () => {
+      clearInterval(intervalo);
+      window.removeEventListener('inventario:cambio-stock', cargar);
+    };
   }, [cargar]);
 
   return (

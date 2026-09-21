@@ -3,6 +3,7 @@ import { Volume2, VolumeX, Bot } from 'lucide-react';
 import { getAlertas } from '../api/client.js';
 
 const CLAVE_SILENCIADO = 'inventario_bot_silenciado';
+const CLAVE_ANUNCIADAS = 'inventario_alertas_anunciadas';
 
 function leerSilenciado() {
   try {
@@ -12,11 +13,26 @@ function leerSilenciado() {
   }
 }
 
+function leerAnunciadas() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(CLAVE_ANUNCIADAS) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
+function guardarAnunciadas(set) {
+  try {
+    localStorage.setItem(CLAVE_ANUNCIADAS, JSON.stringify([...set]));
+  } catch {
+    // si localStorage no está disponible, no persiste entre reinicios, pero no rompe nada
+  }
+}
+
 export default function AlertBot() {
   const [alerta, setAlerta] = useState(null);
   const [silenciado, setSilenciado] = useState(leerSilenciado);
   const silenciadoRef = useRef(silenciado);
-  const yaAnunciado = useRef(new Set());
 
   useEffect(() => {
     silenciadoRef.current = silenciado;
@@ -33,20 +49,44 @@ export default function AlertBot() {
           const masUrgente = alertas.find((a) => a.tipo === 'agotado') ?? alertas[0];
           setAlerta(masUrgente);
 
-          const clave = `${masUrgente.producto_id}-${masUrgente.tipo}`;
-          if (!silenciadoRef.current && !yaAnunciado.current.has(clave) && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(masUrgente.mensaje);
-            utterance.lang = 'es-ES';
-            window.speechSynthesis.speak(utterance);
-            yaAnunciado.current.add(clave);
+          // Solo se anuncia una alerta la primera vez que aparece (cuando el producto
+          // cruza el mínimo o se agota). Si se repone y vuelve a caer, se anuncia de nuevo.
+          const clavesActivas = new Set(alertas.map((a) => `${a.producto_id}-${a.tipo}`));
+          const anunciadas = leerAnunciadas();
+          let cambiaron = false;
+
+          for (const clave of [...anunciadas]) {
+            if (!clavesActivas.has(clave)) {
+              anunciadas.delete(clave);
+              cambiaron = true;
+            }
           }
+
+          for (const a of alertas) {
+            const clave = `${a.producto_id}-${a.tipo}`;
+            if (!anunciadas.has(clave)) {
+              anunciadas.add(clave);
+              cambiaron = true;
+              if (!silenciadoRef.current && 'speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(a.mensaje);
+                utterance.lang = 'es-ES';
+                window.speechSynthesis.speak(utterance);
+              }
+            }
+          }
+
+          if (cambiaron) guardarAnunciadas(anunciadas);
         })
         .catch(() => {});
     }
 
     verificar();
     const intervalo = setInterval(verificar, 30000);
-    return () => clearInterval(intervalo);
+    window.addEventListener('inventario:cambio-stock', verificar);
+    return () => {
+      clearInterval(intervalo);
+      window.removeEventListener('inventario:cambio-stock', verificar);
+    };
   }, []);
 
   function alternarSilencio() {
