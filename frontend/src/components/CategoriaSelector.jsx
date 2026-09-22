@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, SprayCan, FileText } from 'lucide-react';
+import { BookOpen, SprayCan, FileText, Settings } from 'lucide-react';
 import { getBajoStock } from '../api/client.js';
 
 const CATEGORIAS = [
@@ -42,12 +42,20 @@ export default function CategoriaSelector() {
         ))}
       </div>
 
-      <button
-        onClick={() => navigate('/reportes')}
-        className="flex items-center gap-2 text-gray-500 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5 hover:text-gray-700"
-      >
-        <FileText size={16} /> Reportes
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => navigate('/reportes')}
+          className="flex items-center gap-2 text-gray-500 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5 hover:text-gray-700"
+        >
+          <FileText size={16} /> Reportes
+        </button>
+        <button
+          onClick={() => navigate('/configuracion')}
+          className="flex items-center gap-2 text-gray-500 font-medium rounded-lg px-3 py-2 transition-colors hover:bg-black/5 hover:text-gray-700"
+        >
+          <Settings size={16} /> Configuración
+        </button>
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import Reportes from './components/Reportes.jsx';
 import ReporteFaltantes from './components/ReporteFaltantes.jsx';
 import ReporteConsumo from './components/ReporteConsumo.jsx';
 import ReporteEstadisticas from './components/ReporteEstadisticas.jsx';
+import Configuracion from './components/Configuracion.jsx';
 import NotificationBell from './components/NotificationBell.jsx';
 import AlertBot from './components/AlertBot.jsx';
 import { ModoProvider } from './components/ModoContext.jsx';
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/reportes/faltantes" element={<ReporteFaltantes />} />
         <Route path="/reportes/consumo" element={<ReporteConsumo />} />
         <Route path="/reportes/estadisticas" element={<ReporteEstadisticas />} />
+        <Route path="/configuracion" element={<Configuracion />} />
       </Routes>
       <NotificationBell />
       <AlertBot />
